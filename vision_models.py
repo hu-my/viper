@@ -29,8 +29,15 @@ from typing import List, Union
 from configs import config
 from utils import HiddenPrints
 
-with open('api.key') as f:
-    openai.api_key = f.read().strip()
+#with open('api.key') as f:
+#    openai.api_key = f.read().strip()
+
+from openai import OpenAI
+client = OpenAI(
+    base_url='https://api.openai-proxy.org/v1',
+    api_key="sk-WeaFpSv4eKOs5IJ8l3tOcJdG97Kya66wOtIfXq3Xf4qvNmez",
+    # api_key=os.getenv("OPENAI_API_KEY"),  # this is also the default, it can be omitted
+)
 
 cache = Memory('cache/' if config.use_cache else None, verbose=0)
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -881,14 +888,16 @@ class GPT3Model(BaseModel):
                    stop=None, top_p=1, frequency_penalty=0, presence_penalty=0):
         if model == "chatgpt":
             messages = [{"role": "user", "content": p} for p in prompt]
-            response = openai.ChatCompletion.create(
+            # response = openai.ChatCompletion.create(
+            response = client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=messages,
                 max_tokens=max_tokens,
                 temperature=self.temperature,
             )
         else:
-            response = openai.Completion.create(
+            # response = openai.Completion.create(
+            response = client.completions.create(
                 model=model,
                 prompt=prompt,
                 max_tokens=max_tokens,
@@ -961,7 +970,9 @@ def codex_helper(extended_prompt):
     if config.codex.model in ("gpt-4", "gpt-3.5-turbo"):
         if not isinstance(extended_prompt, list):
             extended_prompt = [extended_prompt]
-        responses = [openai.ChatCompletion.create(
+        responses = [
+            # openai.ChatCompletion.create(
+            client.chat.completions.create(
             model=config.codex.model,
             messages=[
                 # {"role": "system", "content": "You are a helpful assistant."},
@@ -977,14 +988,19 @@ def codex_helper(extended_prompt):
             stop=["\n\n"],
         )
             for prompt in extended_prompt]
-        resp = [r['choices'][0]['message']['content'].replace("execute_command(image)",
-                                                              "execute_command(image, my_fig, time_wait_between_lines, syntax)")
-                for r in responses]
-    #         if len(resp) == 1:
+        #resp = [r['choices'][0]['message']['content'].replace("execute_command(image)",
+        #                                                      "execute_command(image, my_fig, time_wait_between_lines, syntax)")
+        #        for r in responses]
+
+        resp = [r.choices[0].message.content.replace("execute_command(image)",
+                                                    "execute_command(image, my_fig, time_wait_between_lines, syntax)")
+               for r in responses]
+    #        if len(resp) == 1:
     #             resp = resp[0]
     else:
         warnings.warn('OpenAI Codex is deprecated. Please use GPT-4 or GPT-3.5-turbo.')
-        response = openai.Completion.create(
+        response = client.completions.create(
+            # openai.Completion.create(
             model="code-davinci-002",
             temperature=config.codex.temperature,
             prompt=extended_prompt,
@@ -997,9 +1013,11 @@ def codex_helper(extended_prompt):
         )
 
         if isinstance(extended_prompt, list):
-            resp = [r['text'] for r in response['choices']]
+            # resp = [r['text'] for r in response['choices']]
+            resp = [r['text'] for r in response.choices]
         else:
-            resp = response['choices'][0]['text']
+            # resp = response['choices'][0]['text']
+            resp = response.choices[0]['text']
 
     return resp
 
@@ -1056,7 +1074,7 @@ class CodexModel(BaseModel):
             return response
         try:
             response = codex_helper(extended_prompt)
-        except openai.error.RateLimitError as e:
+        except openai.RateLimitError as e:
             print("Retrying Codex, splitting batch")
             if len(extended_prompt) == 1:
                 warnings.warn("This is taking too long, maybe OpenAI is down? (status.openai.com/)")
