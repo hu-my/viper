@@ -28,13 +28,13 @@ class RefCOCODataset(Dataset):
         assert version in ['refcoco', 'refcoco+', 'refcocog']
 
         # load refs from data/dataset/refs(dataset).json
-        ref_file = os.path.join(data_path, version, 'refs(' + split_by + ').p')
+        ref_file = os.path.join(data_path, 'annotations', version, 'refs(' + split_by + ').p')
         with open(ref_file, 'rb') as f:
             self.refs = pickle.load(f)
 
         # load annotations from data/dataset/instances.json
 
-        instances_file = os.path.join(data_path, version, 'instances.json')
+        instances_file = os.path.join(data_path, 'annotations', version, 'instances.json')
         with open(instances_file, 'r') as f:
             instances = json.load(f)
         self.images = instances['images']
@@ -200,7 +200,7 @@ class RefCOCODataset(Dataset):
         file_name = '_'.join(ref['file_name'].split('_')[:-1]) + '.' + ref['file_name'].split('.')[-1]
         coco_split = file_name.split('_')[1]
 
-        img_path = os.path.join(self.data_path, 'mscoco', coco_split, file_name)
+        img_path = os.path.join(self.data_path, 'images', coco_split, file_name)
         return img_path
 
     def __getitem__(self, index):
