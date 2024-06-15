@@ -1,0 +1,31 @@
+vGPT_data/
+│
+├── coco/
+│   ├── annotations/
+│   │   ├── instances_train2014.json
+│   │   ├── instances_val2014.json
+│   │   ├── captions_train2014.json
+│   │   ├── ...
+│   │   ├── okvqa/
+│   │   ├── refcoco/
+│   │   ├── refcoco+/
+│   │   └── refcocog/
+│   │
+│   ├── images/
+│   │   ├── train2014/
+│   │   │   ├── COCO_train2014_000000000009.jpg
+│   │   │   ├── COCO_train2014_000000000025.jpg
+│   │   │   └── ...
+│   │   └── val2014/
+│   │       ├── COCO_val2014_000000000042.jpg
+│   │       ├── COCO_val2014_000000000073.jpg
+│   │       └── ...
+│   │
+│   └── annotations_metadata/
+│       ├── image_info_test2014.json
+│       └── image_info_test-dev2014.json
+│
+├── next_qa/ ...
+│
+└── gqa/ ...
+    
