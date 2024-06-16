@@ -68,7 +68,7 @@ class OKVQADataset(Dataset):
             print(f"Start loading OKVQA Dataset from {path}", flush=True)
 
         # Questions
-        path = os.path.expanduser(os.path.join(data_path, self.IMAGE_PATH[split][1]))
+        path = os.path.expanduser(os.path.join(data_path, 'annotations', 'okvqa', self.IMAGE_PATH[split][1]))
         with open(path, 'r') as f:
             data = json.load(f)
         df = pd.DataFrame(data["questions"])
@@ -77,7 +77,7 @@ class OKVQADataset(Dataset):
 
         # Annotations
         if not testing:
-            path = os.path.expanduser(os.path.join(data_path, self.IMAGE_PATH[split][2]))
+            path = os.path.expanduser(os.path.join(data_path, 'annotations', 'okvqa', self.IMAGE_PATH[split][2]))
             with open(path, 'r') as f:
                 data = json.load(f)
             df_annotations = pd.DataFrame(data["annotations"])
@@ -185,7 +185,7 @@ class OKVQADataset(Dataset):
                 self.df.iloc[index]["answers"])  # Apply answer_selection() function to list of dict
 
         # Load and transform image
-        image_path = os.path.expanduser(os.path.join(self.data_path, image_path))
+        image_path = os.path.expanduser(os.path.join(self.data_path, 'images', image_path))
         with open(image_path, "rb") as f:
             pil_img = Image.open(f).convert("RGB")
         if self.image_transforms:

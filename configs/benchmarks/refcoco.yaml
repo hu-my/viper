@@ -1,5 +1,5 @@
 dataset:
-  data_path: /path/to/datasets/refcoco
+  data_path: /path/to/datasets/refcoco #vGPT_data/coco
   dataset_name: RefCOCO
   split_by: unc  # [google, unc]
   split: testA
