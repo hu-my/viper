@@ -218,3 +218,5 @@ LAVIS/
 pretrained_models/
 
 *.xml
+.idea/deployment.xml
+.idea/viper-main.iml
