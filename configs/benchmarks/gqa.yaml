@@ -1,6 +1,6 @@
 dataset:
-    data_path: '/path/to/datasets/GQA' #vGPT_data/gqa
-    dataset_name: GQA
+    data_path: '/data/huminyang/dataset/ViperGPT-dataset/vGPT_data/gqa' #vGPT_data/gqa
+    # dataset_name: GQA
     split: testdev
     testing: False
     max_samples: 1000
