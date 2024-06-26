@@ -826,15 +826,15 @@ class GPT3Model(BaseModel):
             response_ = []
             for i in range(len(prompts)):
                 if self.model == 'chatgpt':
-                    resp_i = [r['message']['content'] for r in
-                              response['choices'][i * self.n_votes:(i + 1) * self.n_votes]]
+                    resp_i = [r.message.content for r in
+                              response.choices[i * self.n_votes:(i + 1) * self.n_votes]]
                 else:
                     resp_i = [r['text'] for r in response['choices'][i * self.n_votes:(i + 1) * self.n_votes]]
                 response_.append(self.most_frequent(resp_i).lstrip())
             response = response_
         else:
             if self.model == 'chatgpt':
-                response = [r['message']['content'].lstrip() for r in response['choices']]
+                response = [r.message.content.lstrip() for r in response.choices]
             else:
                 response = [r['text'].lstrip() for r in response['choices']]
         return response
@@ -857,15 +857,15 @@ class GPT3Model(BaseModel):
             response_ = []
             for i in range(len(prompts)):
                 if self.model == 'chatgpt':
-                    resp_i = [r['message']['content'] for r in
-                              response['choices'][i * self.n_votes:(i + 1) * self.n_votes]]
+                    resp_i = [r.message.content for r in
+                              response.choices[i * self.n_votes:(i + 1) * self.n_votes]]
                 else:
                     resp_i = [r['text'] for r in response['choices'][i * self.n_votes:(i + 1) * self.n_votes]]
                 response_.append(self.most_frequent(resp_i))
             response = response_
         else:
             if self.model == 'chatgpt':
-                response = [r['message']['content'] for r in response['choices']]
+                response = [r.message.content for r in response.choices]
             else:
                 response = [self.process_answer(r["text"]) for r in response['choices']]
         return response
@@ -879,7 +879,7 @@ class GPT3Model(BaseModel):
         response = self.query_gpt3(prompts, model=self.model, max_tokens=256, top_p=1, frequency_penalty=0,
                                    presence_penalty=0)
         if self.model == 'chatgpt':
-            response = [r['message']['content'] for r in response['choices']]
+            response = [r.message.content for r in response.choices]
         else:
             response = [r["text"] for r in response['choices']]
         return response
