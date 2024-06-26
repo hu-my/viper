@@ -64,7 +64,7 @@ def run_program(parameters, queues_in_, input_type_, retrying=False):
             exec(compile(code, 'Codex', 'exec'), globals())
         except Exception as e2:
             print(f'Not even the fixed code worked. Sample {sample_id} failed at compilation time with error: {e2}')
-            return None, code
+            return None, code, e2
 
     queues = [queues_in_, queue_results]
 
@@ -72,6 +72,7 @@ def run_program(parameters, queues_in_, input_type_, retrying=False):
     video_segment_partial = partial(VideoSegment, queues=queues)
     llm_query_partial = partial(llm_query, queues=queues)
 
+    error = 'None'
     try:
         result = globals()[f'execute_command_{sample_id}'](
             # Inputs to the function
@@ -80,23 +81,26 @@ def run_program(parameters, queues_in_, input_type_, retrying=False):
             image_patch_partial, video_segment_partial,
             # Functions to be used
             llm_query_partial, bool_to_yesno, distance, best_image_match)
-    except Exception as e:
+    except Exception as e3:
         # print full traceback
         traceback.print_exc()
         if retrying:
-            return None, code
-        print(f'Sample {sample_id} failed with error: {e}. Next you will see an "expected an indented block" error. ')
+            return None, code, traceback.format_exc()
+        print(f'Sample {sample_id} failed with error: {e3}. Next you will see an "expected an indented block" error. ')
         # Retry again with fixed code
         new_code = "["  # This code will break upon execution, and it will be caught by the except clause
-        result = run_program((new_code, sample_id, image, possible_answers, query), queues_in_, input_type_,
-                             retrying=True)[0]
+        #result = run_program((new_code, sample_id, image, possible_answers, query), queues_in_, input_type_,
+        #                     retrying=True)[0]
+        results = run_program((new_code, sample_id, image, possible_answers, query), queues_in_, input_type_,
+                             retrying=True)
+        result, error = results[0], results[-1]
 
     # The function run_{sample_id} is defined globally (exec doesn't work locally). A cleaner alternative would be to
     # save it in a global dict (replace globals() for dict_name in exec), but then it doesn't detect the imported
     # libraries for some reason. Because defining it globally is not ideal, we just delete it after running it.
     if f'execute_command_{sample_id}' in globals():
         del globals()[f'execute_command_{sample_id}']  # If it failed to compile the code, it won't be defined
-    return result, code
+    return result, code, error
 
 
 def worker_init(queue_results_):
@@ -150,6 +154,7 @@ def main():
     all_results = []
     all_answers = []
     all_codes = []
+    all_errors = []
     all_ids = []
     all_queries = []
     all_img_paths = []
@@ -195,6 +200,7 @@ def main():
 
                 all_results += [r[0] for r in results]
                 all_codes += [r[1] for r in results]
+                all_errors += [r[-1] for r in results]
                 all_ids += batch['sample_id']
                 all_answers += batch['answer']
                 all_possible_answers += batch['possible_answers']
@@ -234,9 +240,12 @@ def main():
                 filename = 'results_' + str(max([int(ef.stem.split('_')[-1]) for ef in existing_files if
                                                  str.isnumeric(ef.stem.split('_')[-1])]) + 1) + '.csv'
         print('Saving results to', filename)
-        df = pd.DataFrame([all_results, all_answers, all_codes, all_ids, all_queries, all_img_paths,
+        # df = pd.DataFrame([all_results, all_answers, all_codes, all_ids, all_queries, all_img_paths,
+        #                    all_possible_answers]).T
+        # df.columns = ['result', 'answer', 'code', 'id', 'query', 'img_path', 'possible_answers']
+        df = pd.DataFrame([all_results, all_answers, all_codes, all_errors, all_ids, all_queries, all_img_paths,
                            all_possible_answers]).T
-        df.columns = ['result', 'answer', 'code', 'id', 'query', 'img_path', 'possible_answers']
+        df.columns = ['result', 'answer', 'code', 'error', 'id', 'query', 'img_path', 'possible_answers']
         # make the result column a string
         df['result'] = df['result'].apply(str)
         df.to_csv(results_dir / filename, header=True, index=False, encoding='utf-8')
