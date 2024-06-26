@@ -3,7 +3,7 @@ dataset:
     # dataset_name: GQA
     split: testdev
     testing: False
-    max_samples: 1000
+    max_samples: 100 # original is 1000, we use 100 for simple testing
     batch_size: 20
     start_sample: 0
 
@@ -17,7 +17,7 @@ load_models:
     owlvit: False
     tcl: False
     gpt3_list: False
-    gpt3_qa: False
+    gpt3_qa: True
     gpt3_guess: False
     depth: False
     blip: True
