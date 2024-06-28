@@ -967,7 +967,7 @@ def codex_helper(extended_prompt):
     assert 0 <= config.codex.temperature <= 1
     assert 1 <= config.codex.best_of <= 20
 
-    if config.codex.model in ("gpt-4", "gpt-3.5-turbo"):
+    if config.codex.model.startswith("gpt-4") or config.codex.model.startswith("gpt-3.5-turbo"):
         if not isinstance(extended_prompt, list):
             extended_prompt = [extended_prompt]
         responses = [
@@ -992,9 +992,19 @@ def codex_helper(extended_prompt):
         #                                                      "execute_command(image, my_fig, time_wait_between_lines, syntax)")
         #        for r in responses]
 
-        resp = [r.choices[0].message.content.replace("execute_command(image)",
-                                                    "execute_command(image, my_fig, time_wait_between_lines, syntax)")
-               for r in responses]
+        #resp = [r.choices[0].message.content.replace("execute_command(image)",
+        #                                            "execute_command(image, my_fig, time_wait_between_lines, syntax)")
+        #       for r in responses]
+
+        resp = []
+        for r in responses:
+            r = r.choices[0].message.content.replace("execute_command(image)",
+                                                     "execute_command(image, my_fig, time_wait_between_lines, syntax)")
+            if "```" in r:
+                r = r.replace("```", "")
+            if "python\n" in r:
+                r = r.replace("python\n", "")
+            resp.append(r)
     #        if len(resp) == 1:
     #             resp = resp[0]
     else:
