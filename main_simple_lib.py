@@ -29,7 +29,7 @@ from IPython.core.display import HTML
 cache = Memory('cache/' if config.use_cache else None, verbose=0)
 
 mp.set_start_method('spawn', force=True)
-from vision_processes import forward, finish_all_consumers  # This import loads all the models. May take a while
+from vision_processes import forward, finish_all_consumers, openai_models_avaiable_list  # This import loads all the models. May take a while
 from image_patch import *
 from video_segment import *
 # from datasets.dataset import MyDataset
@@ -257,7 +257,8 @@ def get_code(query):
     model_name_codex = 'codellama' if config.codex.model == 'codellama' else 'codex'
     code = forward(model_name_codex, prompt=query, input_type="image", extra_context=' ')
     # import pdb; pdb.set_trace()
-    if config.codex.model not in ('gpt-3.5-turbo', 'gpt-4'):
+    print(openai_models_avaiable_list)
+    if config.codex.model not in openai_models_avaiable_list:#('gpt-3.5-turbo', 'gpt-4'):
         code = f'def execute_command(image, my_fig, time_wait_between_lines, syntax):' + code # chat models give execute_command due to system behaviour
     code_for_syntax = code.replace("(image, my_fig, time_wait_between_lines, syntax)", "(image)")
     syntax_1 = Syntax(code_for_syntax, "python", theme="monokai", line_numbers=True, start_line=0)

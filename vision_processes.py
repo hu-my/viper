@@ -16,6 +16,7 @@ from configs import config
 
 console = Console(highlight=False)
 
+openai_models_avaiable_list = []
 if mp.current_process().name == 'MainProcess':
     # No need to initialize the models inside each process
     import vision_models
@@ -24,6 +25,8 @@ if mp.current_process().name == 'MainProcess':
                    if issubclass(m[1], vision_models.BaseModel) and m[1] != vision_models.BaseModel]
     # Sort by attribute "load_order"
     list_models.sort(key=lambda x: x.load_order)
+    if not openai_models_avaiable_list:
+        openai_models_avaiable_list = vision_models.openai_models_avaiable
     if config.multiprocessing:
         manager = mp.Manager()
     else:
