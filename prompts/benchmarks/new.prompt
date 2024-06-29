@@ -1,6 +1,6 @@
 from typing import List, Union
 
-from vision_functions import find_in_image, simple_qa, verify_property, best_text_match, compute_depth
+from vision_functions import find_in_image, simple_qa, verify_property, best_text_match
 
 
 def bool_to_yesno(bool_answer: bool) -> str:
@@ -32,8 +32,6 @@ class ImagePatch:
         Returns True if the object specified by object_name is found in the image, and False otherwise.
     verify_property(property: str) -> bool
         Returns True if the property is met, and False otherwise.
-    compute_depth()->float
-        Returns the median depth of the image crop.
     best_text_match(string1: str, string2: str) -> str
         Returns the string that best matches the image.
     crop(left: int, lower: int, right: int, upper: int) -> ImagePatch
@@ -84,7 +82,7 @@ class ImagePatch:
 
         Examples
         --------
-        >>> # Given an image: Find the foo.
+        >>> # Find the foo.
         >>> def execute_command(image) -> List[ImagePatch]:
         >>>     image_patch = ImagePatch(image)
         >>>     foo_patches = image_patch.find("foo")
@@ -101,7 +99,7 @@ class ImagePatch:
 
         Examples
         -------
-        >>> # Given an image: Which kind of animal is not eating?
+        >>> # Which kind of animal is not eating?
         >>> def execute_command(image) -> str:
         >>>     image_patch = ImagePatch(image)
         >>>     animal_patches = image_patch.find("animal")
@@ -111,7 +109,7 @@ class ImagePatch:
         >>>     # If no animal is not eating, query the image directly
         >>>     return image_patch.simple_query("Which kind of animal is not eating?")
 
-        >>> # Given an image: What is in front of the horse?
+        >>> # What is in front of the horse?
         >>> def execute_command(image) -> str:
         >>>     image_patch = ImagePatch(image)
         >>>     # contains a relation (around, next to, on, near, on top of, in front of, behind, etc), so ask directly
@@ -128,7 +126,7 @@ class ImagePatch:
 
         Examples
         -------
-        >>> # Given an image: Are there both cakes and gummy bears in the photo?
+        >>> # Are there both cakes and gummy bears in the photo?
         >>> def execute_command(image) -> str:
         >>>     image_patch = ImagePatch(image)
         >>>     is_cake = image_patch.exists("cake")
@@ -149,7 +147,7 @@ class ImagePatch:
 
         Examples
         -------
-        >>> # Given an image: Do the letters have blue color?
+        >>> # Do the letters have blue color?
         >>> def execute_command(image) -> str:
         >>>     image_patch = ImagePatch(image)
         >>>     letters_patches = image_patch.find("letters")
@@ -160,27 +158,6 @@ class ImagePatch:
         >>>     return bool_to_yesno(letters_patches[0].verify_property("letters", "blue"))
         """
         return verify_property(self.cropped_image, object_name, property)
-
-    def compute_depth(self):
-        """Returns the median depth of the image crop
-        Parameters
-        ----------
-        Returns
-        -------
-        float
-            the median depth of the image crop
-
-        Examples
-        --------
-        >>> # Given an image: Find the bar furthest away.
-        >>> def execute_command(image)->ImagePatch:
-        >>>     image_patch = ImagePatch(image)
-        >>>     bar_patches = image_patch.find("bar")
-        >>>     bar_patches.sort(key=lambda bar: bar.compute_depth())
-        >>>     return bar_patches[-1]
-        """
-        depth_map = compute_depth(self.cropped_image)
-        return depth_map.median()
 
     def best_text_match(self, option_list: List[str]) -> str:
         """Returns the string that best matches the image.
@@ -193,7 +170,7 @@ class ImagePatch:
 
         Examples
         -------
-        >>> # Given an image: Is the cap gold or white?
+        >>> # Is the cap gold or white?
         >>> def execute_command(image) -> str:
         >>>     image_patch = ImagePatch(image)
         >>>     cap_patches = image_patch.find("cap")
@@ -267,7 +244,7 @@ def distance(patch_a: ImagePatch, patch_b: ImagePatch) -> float:
 # Examples of using ImagePatch
 
 
-# Given an image: What toy is wearing a shirt?
+# What toy is wearing a shirt?
 def execute_command(image) -> str:
     # not a relational verb so go step by step
     image_patch = ImagePatch(image)
@@ -285,14 +262,14 @@ def execute_command(image) -> str:
     return toy_patches[0].simple_query("What toy is wearing a shirt?")
 
 
-# Given an image: Who is the man staring at?
+# Who is the man staring at?
 def execute_command(image) -> str:
     # asks for the predicate of a relational verb (staring at), so ask directly
     image_patch = ImagePatch(image)
     return image_patch.simple_query("Who is the man staring at?")
 
 
-# Given an image: Find more visible chair.
+# Find more visible chair.
 def execute_command(image) -> ImagePatch:
     # Return the chair
     image_patch = ImagePatch(image)
@@ -300,7 +277,7 @@ def execute_command(image) -> ImagePatch:
     return image_patch.find("chair")[0]
 
 
-# Given an image: Find lamp on the bottom.
+# Find lamp on the bottom.
 def execute_command(image) -> ImagePatch:
     # Return the lamp
     image_patch = ImagePatch(image)
@@ -310,32 +287,7 @@ def execute_command(image) -> ImagePatch:
     return lamp_patches[0]  # Return the bottommost lamp
 
 
-# Given a list of images: Does the pole that is near a building that is near a green sign and the pole that is near bushes that are near a green sign have the same material?
-def execute_command(image_list) -> str:
-    material_1 = None
-    material_2 = None
-    for image in image_list:
-        image = ImagePatch(image)
-        # find the building
-        building_patches = image.find("building")
-        for building_patch in building_patches:
-            poles = building_patch.find("pole")
-            signs = building_patch.find("sign")
-            greensigns = [sign for sign in signs if sign.verify_property('sign', 'green')]
-            if len(poles) > 0 and len(greensigns) > 0:
-                material_1 = poles[0].simple_query("What is the material of the pole?")
-        # find the bush
-        bushes_patches = image.find("bushes")
-        for bushes_patch in bushes_patches:
-            poles = bushes_patch.find("pole")
-            signs = bushes_patch.find("sign")
-            greensigns = [sign for sign in signs if sign.verify_property('sign', 'green')]
-            if len(poles) > 0 and len(greensigns) > 0:
-                material_2 = poles[0].simple_query("What is the material of the pole?")
-    return bool_to_yesno(material_1 == material_2)
-
-
-# Given an image: Find middle kid.
+# Find middle kid.
 def execute_command(image) -> ImagePatch:
     # Return the kid
     image_patch = ImagePatch(image)
@@ -347,7 +299,7 @@ def execute_command(image) -> ImagePatch:
     return kid_patches[len(kid_patches) // 2]  # Return the middle kid
 
 
-# Given an image: Is that blanket to the right of a pillow?
+# Is that blanket to the right of a pillow?
 def execute_command(image) -> str:
     image_patch = ImagePatch(image)
     blanket_patches = image_patch.find("blanket")
@@ -363,28 +315,14 @@ def execute_command(image) -> str:
     return "no"
 
 
-# Given an image: How many people are there?
+# How many people are there?
 def execute_command(image) -> str:
     image_patch = ImagePatch(image)
     person_patches = image_patch.find("person")
     return str(len(person_patches))
 
 
-# Given a list of images: Is the man that is wearing dark pants driving?.
-def execute_command(image_list) -> str:
-    for image in image_list:
-        image = ImagePatch(image)
-        man_patches = image.find("man")
-        for man_patch in man_patches:
-            pants = man_patch.find("pants")
-            if len(pants) == 0:
-                continue
-            if pants[0].verify_property("pants", "dark"):
-                return man_patch.simple_query("Is this man driving?")
-    return  ImagePatch(image_list[0]).simple_query("Is the man that is wearing dark pants driving?")
-
-
-# Given an image: Is there a backpack to the right of the man?
+# Is there a backpack to the right of the man?
 def execute_command(image) -> str:
     image_patch = ImagePatch(image)
     man_patches = image_patch.find("man")
@@ -403,23 +341,7 @@ def execute_command(image) -> str:
     return "no"
 
 
-# Given a list of images: What is the pizza with red tomato on it on?
-def execute_command(image_list) -> str:
-    for image in image_list:
-        image = ImagePatch(image)
-        pizza_patches = image.find("pizza")
-        for pizza_patch in pizza_patches:
-            tomato_patches = pizza_patch.find("tomato")
-            has_red_tomato = False
-            for tomato_patch in tomato_patches:
-                if tomato_patch.verify_property("tomato", "red"):
-                    has_red_tomato = True
-            if has_red_tomato:
-                return pizza_patch.simple_query("What is the pizza on?")
-    return ImagePatch(image_list[0]).simple_query("What is the pizza with red tomato on it on?")
-
-
-# Given an image: Find chair to the right near the couch.
+# Find chair to the right near the couch.
 def execute_command(image) -> ImagePatch:
     # Return the chair
     image_patch = ImagePatch(image)
@@ -439,7 +361,7 @@ def execute_command(image) -> ImagePatch:
     return chair_patch
 
 
-# Given an image: Are there bagels or lemons?
+# Are there bagels or lemons?
 def execute_command(image) -> str:
     image_patch = ImagePatch(image)
     is_bagel = image_patch.exists("bagel")
@@ -447,7 +369,7 @@ def execute_command(image) -> str:
     return bool_to_yesno(is_bagel or is_lemon)
 
 
-# Given an image: In which part is the bread, the bottom or the top?
+# In which part is the bread, the bottom or the top?
 def execute_command(image) -> str:
     image_patch = ImagePatch(image)
     bread_patches = image_patch.find("bread")
@@ -461,7 +383,7 @@ def execute_command(image) -> str:
         return "top"
 
 
-# Given an image: Find foo to bottom left.
+# Find foo to bottom left.
 def execute_command(image) -> ImagePatch:
     # Return the foo
     image_patch = ImagePatch(image)
@@ -478,7 +400,7 @@ def execute_command(image) -> ImagePatch:
     return foo_patch
 
 
-# Given an image: Find number 17.
+# Find number 17.
 def execute_command(image) -> ImagePatch:
     # Return the person
     image_patch = ImagePatch(image)
@@ -490,20 +412,7 @@ def execute_command(image) -> ImagePatch:
     return person_patches[0]
 
 
-# Given a list of images: Is the statement true? There is at least 1 image with a brown dog that is near a bicycle and is wearing a collar.
-def execute_command(image_list) -> str:
-    for image in image_list:
-        image = ImagePatch(image)
-        dog_patches = image.find("dog")
-        for dog in dog_patches:
-            near_bicycle = dog.simple_query("Is the dog near a bicycle?")
-            wearing_collar = dog.simple_query("Is the dog wearing a collar?")
-            if near_bicycle == "yes" and wearing_collar == "yes":
-                return 'yes'
-    return 'no'
-
-
-# Given an image: Find dog to the left of the post who is closest to girl wearing a shirt with text that says "I love you".
+# Find dog to the left of the post who is closest to girl wearing a shirt with text that says "I love you".
 def execute_command(image) -> ImagePatch:
     # Return the dog
     image_patch = ImagePatch(image)
@@ -524,7 +433,7 @@ def execute_command(image) -> ImagePatch:
     return dog_patch
 
 
-# Given an image: Find balloon on the right and second from the bottom.
+# Find balloon on the right and second from the bottom.
 def execute_command(image) -> ImagePatch:
     # Return the balloon
     image_patch = ImagePatch(image)
@@ -543,7 +452,7 @@ def execute_command(image) -> ImagePatch:
     return balloon_patch
 
 
-# Given an image: Find girl in white next to man in left.
+# Find girl in white next to man in left.
 def execute_command(image) -> ImagePatch:
     # Return the girl
     image_patch = ImagePatch(image)
@@ -560,19 +469,7 @@ def execute_command(image) -> ImagePatch:
     return girl_patch
 
 
-# Given a list of images: Is the statement true? There is 1 table that is in front of woman that is wearing jacket.
-def execute_command(image_list) -> str:
-    for image in image_list:
-        image = ImagePatch(image)
-        woman_patches = image.find("woman")
-        for woman in woman_patches:
-            if woman.simple_query("Is the woman wearing jacket?") == "yes":
-                tables = woman.find("table")
-                return bool_to_yesno(len(tables) == 1)
-    return 'no'
-
-
-# Given an image: Find top left.
+# Find top left.
 def execute_command(image) -> ImagePatch:
     # Return the person
     image_patch = ImagePatch(image)
@@ -591,13 +488,13 @@ def execute_command(image) -> ImagePatch:
     return person_leftmost
 
 
-# Given an image: What type of weather do you see in the photograph?
+# What type of weather do you see in the photograph?
 def execute_command(image) -> str:
     image_patch = ImagePatch(image)
     return image_patch.simple_query("What type of weather do you see in the photograph?")
 
 
-# Given an image: How many orange life vests can be seen?
+# How many orange life vests can be seen?
 def execute_command(image) -> str:
     image_patch = ImagePatch(image)
     life_vest_patches = image_patch.find("life vest")
@@ -608,14 +505,14 @@ def execute_command(image) -> str:
     return str(len(orange_life_vest_patches))
 
 
-# Given an image: What is behind the pole?
+# What is behind the pole?
 def execute_command(image) -> str:
     image_patch = ImagePatch(image)
     # contains a relation (around, next to, on, near, on top of, in front of, behind, etc), so ask directly
     return image_patch.simple_query("What is behind the pole?")
 
 
-# Given an image: Find second to top flower.
+# Find second to top flower.
 def execute_command(image) -> ImagePatch:
     # Return the flower
     image_patch = ImagePatch(image)
@@ -626,29 +523,7 @@ def execute_command(image) -> ImagePatch:
     return flower_patch
 
 
-# Given an image: Find back.
-def execute_command(image) -> ImagePatch:
-    # Return the person
-    image_patch = ImagePatch(image)
-    person_patches = image_patch.find("person")
-    person_patches.sort(key=lambda person: person.compute_depth())
-    person_patch = person_patches[-1]
-    # Remember: return the person
-    return person_patch
-
-
-# Given an image: Find chair at the front.
-def execute_command(image) -> ImagePatch:
-    # Return the chair
-    image_patch = ImagePatch(image)
-    chair_patches = image_patch.find("chair")
-    chair_patches.sort(key=lambda chair: chair.compute_depth())
-    chair_patch = chair_patches[0]
-    # Remember: return the chair
-    return chair_patch
-
-
-# Given an image: Find white and yellow pants.
+# Find white and yellow pants.
 def execute_command(image) -> ImagePatch:
     # Return the person
     image_patch = ImagePatch(image)
@@ -659,7 +534,7 @@ def execute_command(image) -> ImagePatch:
     return person_patch
 
 
-# Given an image: Find cow facing the camera.
+# Find cow facing the camera.
 def execute_command(image) -> ImagePatch:
     # Return the cow
     image_patch = ImagePatch(image)
@@ -671,22 +546,7 @@ def execute_command(image) -> ImagePatch:
     return cow_patch
 
 
-# Given a list of images: Is the statement true? There is 1 image that contains exactly 3 blue papers.
-def execute_command(image_list) -> str:
-    image_cnt = 0
-    for image in image_list:
-        image = ImagePatch(image)
-        paper_patches = image.find("paper")
-        blue_paper_patches = []
-        for paper in paper_patches:
-            if paper.verify_property("paper", "blue"):
-                blue_paper_patches.append(paper)
-        if len(blue_paper_patches) == 3:
-            image_cnt += 1
-    return bool_to_yesno(image_cnt == 1)
-
-
-# Given an image: Find black car just under stop sign.
+# Find black car just under stop sign.
 def execute_command(image) -> ImagePatch:
     # Return the car
     image_patch = ImagePatch(image)
@@ -705,64 +565,5 @@ def execute_command(image) -> ImagePatch:
     return car_under_stop[0]
 
 
-# Given a list of images: Is there either a standing man that is holding a cell phone or a sitting man that is holding a cell phone?
-def execute_command(image_list) -> str:
-    for image in image_list:
-        image = ImagePatch(image)
-        man_patches = image.find("man")
-        for man in man_patches:
-            holding_cell_phone = man.simple_query("Is this man holding a cell phone?")
-            if holding_cell_phone == "yes":
-                if man.simple_query("Is this man sitting?") == "yes":
-                    return 'yes'
-                if man.simple_query("Is this man standing?") == "yes":
-                    return 'yes'
-    return 'no'
-
-
-# Given a list of images: How many people are running while looking at their cell phone?
-def execute_command(image) -> str:
-    image_patch = ImagePatch(image)
-    people_patches = image_patch.find("person")
-    # Question assumes only one person patch
-    if len(people_patches) == 0:
-        # If no people are found, query the image directly
-        return image_patch.simple_query("How many people are running while looking at their cell phone?")
-    people_count = 0
-    for person_patch in people_patches:
-        # Verify two conditions: (1) running (2) looking at cell phone
-        if person_patch.simple_query("Is the person running?") == "yes":
-            if person_patch.simple_query("Is the person looking at cell phone?") == "yes":
-                people_count += 1
-    return str(people_count)
-
-
-# Given a list of images: Does the car that is on a highway and the car that is on a street have the same color?
-def execute_command(image_list) -> str:
-    color_1 = None
-    color_2 = None
-    for image in image_list:
-        image = ImagePatch(image)
-        car_patches = image.find("car")
-        for car_patch in car_patches:
-            if car_patch.simple_query("Is the car on the highway?") == "yes":
-                color_1 = car_patch.simple_query("What is the color of the car?")
-            elif car_patch.simple_query("Is the car on a street?") == "yes":
-                color_2 = car_patch.simple_query("What is the color of the car?")
-    return bool_to_yesno(color_1 == color_2)
-
-
-# Given a list of images: Is the statement true? There are 3 magazine that are on table.
-def execute_command(image_list) -> str:
-    count = 0
-    for image in image_list:
-        image = ImagePatch(image)
-        magazine_patches = image.find("magazine")
-        for magazine_patch in magazine_patches:
-            on_table = magazine_patch.simple_query("Is the magazine on a table?")
-            if on_table == "yes":
-                count += 1
-    return bool_to_yesno(count == 3)
-
-
 # INSERT_QUERY_HERE
+def execute_command(image)->str:
