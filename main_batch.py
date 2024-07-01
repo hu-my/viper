@@ -18,7 +18,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from configs import config
-from utils import seed_everything
+from utils import seed_everything, process_query
 import datasets
 
 # See https://github.com/pytorch/pytorch/issues/11201, https://github.com/pytorch/pytorch/issues/973
@@ -172,7 +172,8 @@ def main():
                 # TODO compute Codex for next batch as current batch is being processed
 
                 if not config.use_cached_codex:
-                    codes = codex(prompt=batch['query'], base_prompt=base_prompt, input_type=input_type,
+                    batch_query = process_query(batch_query=batch['query'])
+                    codes = codex(prompt=batch_query, base_prompt=base_prompt, input_type=input_type,
                                   extra_context=batch['extra_context'])
 
                 else:

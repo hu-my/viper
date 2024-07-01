@@ -203,3 +203,12 @@ class HiddenPrints:
                 self.console.print(f'{self.model_name} loaded ')
             import tqdm
             tqdm.tqdm = self.tqdm_aux
+
+def process_query(batch_query, dataset='gqa'):
+    assert dataset in ['gqa', 'nextqa', 'okvqa', 'refcoco']
+    if dataset == 'gqa':
+        batch_query = [f"Given an image: {q}\ndef execute_command(image) -> str:" for q in batch_query]
+    elif dataset == 'refcoco':
+        batch_query = [f"Given an image: Find {q}.\ndef execute_command(image) -> ImagePatch:" for q in batch_query]
+
+    return batch_query

@@ -964,6 +964,9 @@ class GPT3Model(BaseModel):
 # @cache.cache
 @backoff.on_exception(backoff.expo, Exception, max_tries=10)
 def codex_helper(extended_prompt):
+    FUNCTION_HEAD = "def execute_command(image) -> str:"
+    SYSTEM = f"Only answer with a Python function that starts with {FUNCTION_HEAD}"
+
     assert 0 <= config.codex.temperature <= 1
     assert 1 <= config.codex.best_of <= 20
 
@@ -976,7 +979,7 @@ def codex_helper(extended_prompt):
             model=config.codex.model,
             messages=[
                 # {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "system", "content": "Only answer with a function starting def execute_command."},
+                {"role": "system", "content": SYSTEM},
                 {"role": "user", "content": prompt}
             ],
             temperature=config.codex.temperature,
