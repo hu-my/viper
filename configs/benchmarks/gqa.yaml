@@ -7,7 +7,7 @@ dataset:
     batch_size: 10
     start_sample: 0
 
-prompt : ./prompts/benchmarks/gqa.prompt
+prompt : ./prompts/benchmarks/new.prompt
 results_dir : ./results/gqa/
 
 load_models:
