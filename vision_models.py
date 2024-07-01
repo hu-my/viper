@@ -33,11 +33,9 @@ from utils import HiddenPrints
 #    openai.api_key = f.read().strip()
 
 from openai import OpenAI
-client = OpenAI(
-    base_url='https://api.openai-proxy.org/v1',
-    api_key="sk-WeaFpSv4eKOs5IJ8l3tOcJdG97Kya66wOtIfXq3Xf4qvNmez",
-    # api_key=os.getenv("OPENAI_API_KEY"),  # this is also the default, it can be omitted
-)
+client = OpenAI()
+openai_models_list = client.models.list()
+openai_models_avaiable = [model.id for model in openai_models_list.data]
 
 cache = Memory('cache/' if config.use_cache else None, verbose=0)
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -567,7 +565,7 @@ class GLIPModel(BaseModel):
                 if confidence_threshold is not None:
                     original_confidence_threshold = self.confidence_threshold
                     self.confidence_threshold = confidence_threshold
-
+                
                 # if isinstance(object, list):
                 #     object = ' . '.join(object) + ' .' # add separation tokens
                 image = self.prepare_image(image)
@@ -970,7 +968,7 @@ def codex_helper(extended_prompt):
     assert 0 <= config.codex.temperature <= 1
     assert 1 <= config.codex.best_of <= 20
 
-    if config.codex.model.startswith("gpt-4") or config.codex.model.startswith("gpt-3.5-turbo"):
+    if config.codex.model in openai_models_avaiable:#("gpt-4", "gpt-3.5-turbo"):
         if not isinstance(extended_prompt, list):
             extended_prompt = [extended_prompt]
         responses = [

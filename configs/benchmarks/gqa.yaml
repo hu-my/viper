@@ -1,13 +1,13 @@
 dataset:
-    data_path: '/data/huminyang/dataset/ViperGPT-dataset/vGPT_data/gqa' #vGPT_data/gqa
-    # dataset_name: GQA
+    data_path: '/data/vGPT_data/gqa' #vGPT_data/gqa
+    dataset_name: GQA
     split: testdev
     testing: False
-    max_samples: 100 # original is 1000, we use 100 for simple testing
-    batch_size: 20
+    max_samples: 1000
+    batch_size: 10
     start_sample: 0
 
-prompt : ./prompts/benchmarks/gqa.prompt
+prompt : ./prompts/benchmarks/new.prompt
 results_dir : ./results/gqa/
 
 load_models:
