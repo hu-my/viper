@@ -33,11 +33,7 @@ from utils import HiddenPrints
 #    openai.api_key = f.read().strip()
 
 from openai import OpenAI
-client = OpenAI(
-    #base_url='https://api.openai-proxy.org/v1',
-    api_key=os.environ['OPENAI_API_KEY']#"sk-proj-8VxarE3v5vghA64sL48wT3BlbkFJCPo8RMwupiP9y574xIbm" #"sk-WeaFpSv4eKOs5IJ8l3tOcJdG97Kya66wOtIfXq3Xf4qvNmez",
-    # api_key=os.getenv("OPENAI_API_KEY"),  # this is also the default, it can be omitted
-)
+client = OpenAI()
 openai_models_list = client.models.list()
 openai_models_avaiable = [model.id for model in openai_models_list.data]
 
