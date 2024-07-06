@@ -71,7 +71,7 @@ class ImagePatch:
 
         Examples
         --------
-        >>> # return the foo
+        >>> # Given an image: return the foo
         >>> def execute_command(image) -> List[ImagePatch]:
         >>>     image_patch = ImagePatch(image)
         >>>     foo_patches = image_patch.find("foo")
@@ -88,7 +88,7 @@ class ImagePatch:
 
         Examples
         -------
-        >>> # Are there both foos and garply bars in the photo?
+        >>> # Given an image: Are there both foos and garply bars in the photo?
         >>> def execute_command(image)->str:
         >>>     image_patch = ImagePatch(image)
         >>>     is_foo = image_patch.exists("foo")
@@ -108,7 +108,7 @@ class ImagePatch:
 
         Examples
         -------
-        >>> # Is the foo gold or white?
+        >>> # Given an image: Is the foo gold or white?
         >>> def execute_command(image)->str:
         >>>     image_patch = ImagePatch(image)
         >>>     foo_patches = image_patch.find("foo")
@@ -129,14 +129,14 @@ class ImagePatch:
         Examples
         -------
 
-        >>> # What color is the foo?
+        >>> # Given an image: What color is the foo?
         >>> def execute_command(image) -> str:
         >>>     image_patch = ImagePatch(image)
         >>>     foo_patches = image_patch.find("foo")
         >>>     foo_patch = foo_patches[0]
         >>>     return foo_patch.simple_query("What is the color?")
 
-        >>> # Is the second bar from the left quuxy?
+        >>> # Given an image: Is the second bar from the left quuxy?
         >>> def execute_command(image) -> str:
         >>>     image_patch = ImagePatch(image)
         >>>     bar_patches = image_patch.find("bar")
@@ -171,7 +171,7 @@ class ImagePatch:
 
         Examples
         --------
-        >>> # black foo on top of the qux
+        >>> # Given an image: black foo on top of the qux
         >>> def execute_command(image) -> ImagePatch:
         >>>     image_patch = ImagePatch(image)
         >>>     qux_patches = image_patch.find("qux")
@@ -214,7 +214,7 @@ def distance(patch_a: ImagePatch, patch_b: ImagePatch) -> float:
 
     Examples
     --------
-    # Return the qux that is closest to the foo
+    # Given an image: Return the qux that is closest to the foo
     >>> def execute_command(image):
     >>>     image_patch = ImagePatch(image)
     >>>     qux_patches = image_patch.find('qux')
@@ -295,7 +295,7 @@ class VideoSegment:
 
         Examples
         -------
-        >>> # Is there a foo in the frame bar appears?
+        >>> # Given a video: Is there a foo in the frame bar appears?
         >>> def execute_command(video)->bool:
         >>>     video_segment = VideoSegment(video)
         >>>     for i, frame in enumerate(video_segment.frame_iterator()):
@@ -318,7 +318,7 @@ class VideoSegment:
 
         Examples
         --------
-        >>> # Return the second half of the video
+        >>> # Given a video: Return the second half of the video
         >>> def execute_command(video):
         >>>     video_segment = VideoSegment(video)
         >>>     video_second_half = video_segment.trim(video_segment.num_frames // 2, video_segment.num_frames)
@@ -339,7 +339,7 @@ class VideoSegment:
 
         Examples
         -------
-        >>> # Return the frame when the kid kisses the cat
+        >>> # Given a video: Return the frame when the kid kisses the cat
         >>> def execute_command(video):
         >>>     video_segment = VideoSegment(video)
         >>>     for i, frame in enumerate(video_segment.frame_iterator()):
@@ -352,9 +352,9 @@ class VideoSegment:
 
 # Examples of how to use the API
 
-# how many cats are there in the video
+# Given a video: how many cats are there in the video
 # possible answers: ['one', 'two', 'three', 'four', 'five']
-def execute_command(video, possible_answers, query)->[str, dict]:
+def execute_command(video, possible_answers, query)->str:
     video_segment = VideoSegment(video)
     # Count the number of cats in the video
     num_cats_all_frames = []
@@ -369,9 +369,9 @@ def execute_command(video, possible_answers, query)->[str, dict]:
     return answer
 
 
-# where is the video taking place
+# Given a video: where is the video taking place
 # possible answers: ['road', 'house', 'dog', 'dining room', 'street']
-def execute_command(video, possible_answers, query)->[str, dict]:
+def execute_command(video, possible_answers, query)->str:
     video_segment = VideoSegment(video)
     frame_of_interest = video_segment.frame_from_index(video_segment.num_frames // 2)
     # Caption the frame
@@ -388,9 +388,9 @@ def execute_command(video, possible_answers, query)->[str, dict]:
     return answer
 
 
-# how is the man feeling after standing up from the chair
+# Given a video: how is the man feeling after standing up from the chair
 # possible answers: ['happy', 'sad', 'angry', 'neutral', 'surprised']
-def execute_command(video, possible_answers, query)->[str, dict]:
+def execute_command(video, possible_answers, query)->str:
     # Reason every step
     video_segment = VideoSegment(video)
     man_finished_standing = False
@@ -426,9 +426,9 @@ def execute_command(video, possible_answers, query)->[str, dict]:
     return answer
 
 
-# what is the man beside the table holding in his hand while speaking to the woman
+# Given a video: what is the man beside the table holding in his hand while speaking to the woman
 # possible_answers = ['phone', 'book', 'cup', 'bottle', 'bag']
-def execute_command(video, possible_answers, query)->[str, dict]:
+def execute_command(video, possible_answers, query)->str:
     video_segment = VideoSegment(video)
     frame_of_interest = None
     for i, frame in enumerate(video_segment.frame_iterator()):
@@ -461,9 +461,9 @@ def execute_command(video, possible_answers, query)->[str, dict]:
     return answer
 
 
-# why are the little girls and boys posing after dancing
+# Given a video: why are the little girls and boys posing after dancing
 # possible answers: ['to take a picture', 'to jump', 'scared', 'they are friends', 'to eat cake]
-def execute_command(video, possible_answers, query)->[str, dict]:
+def execute_command(video, possible_answers, query)->str:
     video_segment = VideoSegment(video)
     # Find the frame where the girls and boys finish dancing
     dance_started = False
@@ -494,9 +494,9 @@ def execute_command(video, possible_answers, query)->[str, dict]:
     return answer
 
 
-# how does the kid get the ball at the beginning
+# Given a video: how does the kid get the ball at the beginning
 # possible answers: ['with his hand', 'kicks it', 'run to fetch it', 'looks at the baby', 'happy']
-def execute_command(video, possible_answers, query)->[str, dict]:
+def execute_command(video, possible_answers, query)->str:
     video_segment = VideoSegment(video)
     video_segment = video_segment.trim(0, 5)  # Trim the video to the first 5 seconds ("at the beginning")
     # detect when the kid gets the ball
@@ -519,9 +519,9 @@ def execute_command(video, possible_answers, query)->[str, dict]:
     return answer
 
 
-# what did the hen do after the chicks wandered off
+# Given a video: what did the hen do after the chicks wandered off
 # possible answers: ['moves the food in her hand', 'eat the corn', 'lay down on the straw', 'flip onto back', 'look around']
-def execute_command(video, possible_answers, query)->[str, dict]:
+def execute_command(video, possible_answers, query)->str:
     video_segment = VideoSegment(video)
     # detect when the chicks wander off
     wander_detected = False
@@ -558,9 +558,9 @@ def execute_command(video, possible_answers, query)->[str, dict]:
     return answer
 
 
-# why does the man with a red hat put his arm down at the end of the video
+# Given a video: why does the man with a red hat put his arm down at the end of the video
 # possible answers: ['watching television', 'searching for food', 'move its head', 'looking over cardboard box', 'looks at the camera']
-def execute_command(video, possible_answers, query)->[str, dict]:
+def execute_command(video, possible_answers, query)->str:
     video_segment = VideoSegment(video)
     # Caption last frame of the video (end of video)
     last_frame = video_segment.frame_from_index(-1)
@@ -582,4 +582,4 @@ def execute_command(video, possible_answers, query)->[str, dict]:
 
 # INSERT_QUERY_HERE
 # possible answers: EXTRA_CONTEXT_HERE
-def execute_command(INSERT_TYPE_HERE):
+def execute_command(INSERT_TYPE_HERE, possible_answers, query)->str:
