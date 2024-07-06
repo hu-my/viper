@@ -120,7 +120,7 @@ class DepthEstimationModel(BaseModel):
         with HiddenPrints('DepthEstimation'):
             warnings.simplefilter("ignore")
             # Model options: MiDaS_small, DPT_Hybrid, DPT_Large
-            depth_estimation_model = hub.load('intel-isl/MiDaS', model_type, pretrained=True).to(self.dev)
+            depth_estimation_model = hub.load('intel-isl/MiDaS',  model_type, source='local', pretrained=True).to(self.dev)
             depth_estimation_model.eval()
 
             midas_transforms = torch.hub.load("intel-isl/MiDaS", "transforms")
@@ -964,7 +964,7 @@ class GPT3Model(BaseModel):
 # @cache.cache
 @backoff.on_exception(backoff.expo, Exception, max_tries=10)
 def codex_helper(extended_prompt):
-    FUNCTION_HEAD = "def execute_command(image) -> str:"
+    FUNCTION_HEAD = config.codex.function_head
     SYSTEM = f"Only answer with a Python function that starts with {FUNCTION_HEAD}"
 
     assert 0 <= config.codex.temperature <= 1
@@ -978,7 +978,7 @@ def codex_helper(extended_prompt):
             client.chat.completions.create(
             model=config.codex.model,
             messages=[
-                # {"role": "system", "content": "You are a helpful assistant."},
+                # {"role": "system", "content": },
                 {"role": "system", "content": SYSTEM},
                 {"role": "user", "content": prompt}
             ],
