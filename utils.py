@@ -204,11 +204,15 @@ class HiddenPrints:
             import tqdm
             tqdm.tqdm = self.tqdm_aux
 
-def process_query(batch_query, dataset='gqa'):
-    assert dataset in ['gqa', 'nextqa', 'okvqa', 'refcoco']
-    if dataset == 'gqa':
+def process_query(batch_query, dataset='GQA'):
+    assert dataset in ['GQA', 'NExTQA', 'OKVQA', 'RefCOCO']
+    if dataset == 'GQA':
         batch_query = [f"Given an image: {q}\ndef execute_command(image) -> str:" for q in batch_query]
-    elif dataset == 'refcoco':
+    elif dataset == 'RefCOCO':
         batch_query = [f"Given an image: Find {q}.\ndef execute_command(image) -> ImagePatch:" for q in batch_query]
+    elif dataset == 'NExTQA':
+        batch_query = [f"Given a video: {q}" for q in batch_query]
+    elif dataset == 'OKVQA':
+        batch_query = [f"Given an image: {q}\ndef execute_command(image) -> str:" for q in batch_query]
 
     return batch_query

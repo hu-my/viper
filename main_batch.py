@@ -172,7 +172,7 @@ def main():
                 # TODO compute Codex for next batch as current batch is being processed
 
                 if not config.use_cached_codex:
-                    batch_query = process_query(batch_query=batch['query'])
+                    batch_query = process_query(batch_query=batch['query'], dataset=config.dataset.dataset_name)
                     codes = codex(prompt=batch_query, base_prompt=base_prompt, input_type=input_type,
                                   extra_context=batch['extra_context'])
 
@@ -207,7 +207,10 @@ def main():
                 all_possible_answers += batch['possible_answers']
                 all_query_types += batch['query_type']
                 all_queries += batch['query']
-                all_img_paths += [dataset.get_sample_path(idx) for idx in batch['index']]
+                if batch.get('image_path', None) is None:
+                    all_img_paths += [dataset.get_sample_path(idx) for idx in batch['index']]
+                else:
+                    all_img_paths += batch['image_path']
                 if i % config.log_every == 0:
                     try:
                         accuracy = dataset.accuracy(all_results, all_answers, all_possible_answers, all_query_types)
