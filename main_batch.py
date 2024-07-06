@@ -39,7 +39,7 @@ def my_collate(batch):
 
 
 def run_program(parameters, queues_in_, input_type_, retrying=False):
-    from image_patch import ImagePatch, llm_query, best_image_match, distance, bool_to_yesno
+    from image_patch import ImagePatch, llm_query, best_image_match, distance, bool_to_yesno, process_guesses
     from video_segment import VideoSegment
 
     global queue_results
@@ -49,7 +49,7 @@ def run_program(parameters, queues_in_, input_type_, retrying=False):
     code_header = f'def execute_command_{sample_id}(' \
                   f'{input_type_}, possible_answers, query, ' \
                   f'ImagePatch, VideoSegment, ' \
-                  'llm_query, bool_to_yesno, distance, best_image_match):\n' \
+                  'llm_query, bool_to_yesno, distance, best_image_match, process_guesses):\n' \
                   f'    # Answer is:'
     code = code_header + code
 
@@ -80,7 +80,7 @@ def run_program(parameters, queues_in_, input_type_, retrying=False):
             # Classes to be used
             image_patch_partial, video_segment_partial,
             # Functions to be used
-            llm_query_partial, bool_to_yesno, distance, best_image_match)
+            llm_query_partial, bool_to_yesno, distance, best_image_match, process_guesses)
     except Exception as e3:
         # print full traceback
         traceback.print_exc()

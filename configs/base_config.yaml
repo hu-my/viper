@@ -62,8 +62,8 @@ save_new_results: True                              # If False, overwrite the re
 results_dir: ./results/                             # Directory to save the results
 use_cache: True                                     # Use cache for the models that support it (now, GPT-3)
 clear_cache: False                                  # Clear stored cache
-use_cached_codex: True                             # Use previously-computed Codex results
-cached_codex_path: /home/huminyang/Code/viper/results/gqa/testdev/results_13.csv                              # Path to the csv results file from which to load Codex results
+use_cached_codex: False                             # Use previously-computed Codex results
+cached_codex_path: ''                            # Path to the csv results file from which to load Codex results
 log_every: 20                                       # Log accuracy every n batches
 wandb: False                                        # Use Weights and Biases
 
