@@ -16,9 +16,9 @@ class GQADataset(Dataset):
         False: "all"
     }
 
-    def __init__(self, split, balanced=True, data_path="",
+    def __init__(self, split, dataset_name=None, balanced=True, data_path="",
                  image_transforms=None, question_transforms=None, tokenize=None,
-                 verbose=False, testing=False, max_samples=None, first_n=None, return_pil=True):
+                 verbose=False, testing=False, max_samples=None, first_n=None, return_pil=True, *args, **kwarg):
         """
         Args:
             split (str): Data split. One of ["challenge", "submission", "test", "testdev", "train", "val"]
@@ -30,6 +30,7 @@ class GQADataset(Dataset):
             testing (bool): Set to true for data splits without targets. Default=False.
             first_n (int): Only use the first n samples. Default=None. Only valid if loading from hdf.
         """
+        assert dataset_name == 'GQA'
         start_time = time.time()
         self.split = split
         self.testing = testing
@@ -52,7 +53,8 @@ class GQADataset(Dataset):
                 if verbose:
                     print(f"Loading GQA Dataset from {data_path}", flush=True)
                 self.df = pd.read_hdf(
-                    os.path.join(data_path, f"questions/{self.split}_{self.balanced_type}_questions.h5"), "table", stop=first_n)
+                    os.path.join(data_path, f"questions/{self.split}_{self.balanced_type}_questions.h5"), "table",
+                    stop=first_n)
             else:
                 self.file_name = f"questions/{self.split}_{self.balanced_type}_questions.json"
                 path = os.path.expanduser(os.path.join(data_path, self.file_name))
@@ -61,17 +63,18 @@ class GQADataset(Dataset):
                 self.df = pd.read_json(path, orient="index")
 
         if max_samples is not None:
-            self.df = self.df.sample(n=max_samples)
+            # self.df = self.df.sample(n=max_samples)
+            self.df = self.df[:max_samples]
 
         self.n_samples = self.df.shape[0]
         if verbose:
             print(
                 f"Loading GQA Dataset done in {time.time() - start_time:.1f} seconds. Loaded {self.n_samples} samples.")
-            
+
         # For evaluation
         self.contractions = {"aint": "ain't", "arent": "aren't", "cant": "can't", "couldve": "could've",
                              "couldnt": "couldn't", "couldn'tve": "couldn't've", "couldnt've": "couldn't've",
-                             "didnt": "didn't","doesnt": "doesn't", "dont": "don't", "hadnt": "hadn't",
+                             "didnt": "didn't", "doesnt": "doesn't", "dont": "don't", "hadnt": "hadn't",
                              "hadnt've": "hadn't've", "hadn'tve": "hadn't've", "hasnt": "hasn't", "havent": "haven't",
                              "hed": "he'd", "hed've": "he'd've", "he'dve": "he'd've", "hes": "he's", "howd": "how'd",
                              "howll": "how'll", "hows": "how's", "Id've": "I'd've", "I'dve": "I'd've", "Im": "I'm",
@@ -125,9 +128,9 @@ class GQADataset(Dataset):
         self.punct = [';', r"/", '[', ']', '"', '{', '}',
                       '(', ')', '=', '+', '\\', '_', '-',
                       '>', '<', '@', '`', ',', '?', '!']
-        
+
         self.max_words = 50
-    
+
     def processPunctuation(self, inText):
         outText = inText
         for p in self.punct:
@@ -199,15 +202,19 @@ class GQADataset(Dataset):
         if self.testing:
             if (sample_id is None) or (img is None) or (question is None):
                 raise Exception(f"Error in GQA Dataset: sample_id={sample_id}, img={img}, question={question}")
-            out_dict = {"sample_id": sample_id, "img": img, "question": question, 'index': index}
+            out_dict = {"sample_id": sample_id, "image": img, "query": question, 'index': index}
             if self.return_pil:
                 out_dict["pil_img"] = pil_img
-            return out_dict
+
         else:
-            out_dict = {"sample_id": sample_id, "answer": answer, "img": img, "question": question, 'pil_img': pil_img,
-                        "question_type": question_type, 'index': index, 'possible_answers': [],
-                        'info_to_prompt': question}
-            return out_dict
+            out_dict = {"sample_id": sample_id, "answer": answer, "image": img, "query": question,
+                        "image_name": image_id,  # 'pil_img': pil_img,
+                        "query_type": question_type, 'index': index, 'possible_answers': [],
+                        'info_to_prompt': question, "image_path": image_path}
+        if 'extra_context' not in out_dict:
+            out_dict['extra_context'] = ''
+
+        return out_dict
 
     def post_process(self, prediction, stem=True):
         """

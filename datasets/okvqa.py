@@ -43,7 +43,7 @@ class OKVQADataset(Dataset):
                  image_transforms=None, question_transforms=None, tokenize=None,
                  # answer_selection=most_common_from_dict,
                  answer_selection=all_answers_from_dict,
-                 verbose=False, testing=False, max_samples=None):
+                 verbose=False, testing=False, max_samples=None, **kwargs):
         """
         split train, val, test
         balanced True, False
@@ -157,7 +157,7 @@ class OKVQADataset(Dataset):
                       '(', ')', '=', '+', '\\', '_', '-',
                       '>', '<', '@', '`', ',', '?', '!']
 
-    def get_img_path(self, index):
+    def get_sample_path(self, index):
         image_id = self.df.iloc[index]["image_path"]
         image_path = os.path.expanduser(os.path.join(self.data_path, image_id))
         return image_path
@@ -201,13 +201,13 @@ class OKVQADataset(Dataset):
 
         # Return
         if self.testing:
-            return {"sample_id": question_id, "img": img, "question": question, 'pil_img': pil_img, 'index': index,
-                    'possible_answers': [], 'info_to_prompt': question, 'question_type': -1}
+            return {"sample_id": question_id, "image": img, "query": question, 'pil_img': pil_img, 'index': index,
+                    'possible_answers': [], 'info_to_prompt': question, 'question_type': -1, 'extra_context': ''}
 
         else:
-            return {"sample_id": question_id, 'answer': selected_answers, "img": img, "question": question,
+            return {"sample_id": question_id, 'answer': selected_answers, "image": img, "query": question,
                     'pil_img': pil_img, 'index': index, 'possible_answers': [], 'info_to_prompt': question,
-                    "question_type": -1}
+                    "query_type": -1, 'extra_context': ''}
 
     def post_process(self, prediction, stem=True):
         """
