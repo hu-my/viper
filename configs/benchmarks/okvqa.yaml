@@ -1,13 +1,13 @@
 dataset:
-    data_path: /path/to/datasets/OKVQA ##vGPT_data/coco
+    data_path: /data/vGPT_data/coco
     dataset_name: OKVQA
     split: test
     testing: False
     max_samples:
     batch_size: 20
     start_sample: 0
-
-prompt: ./prompts/benchmarks/okvqa.prompt
+codex:
+    prompt: ./prompts/benchmarks/okvqa.prompt
 
 results_dir: ./results/okvqa/
 

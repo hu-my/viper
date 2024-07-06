@@ -141,5 +141,5 @@ def execute_command(image)->str:
     guesses.append(direct_guess)
     return process_guesses("Where can I get a laptop like the one found here?", guesses)
 
-# INSERT_PROMPT_HERE
+# INSERT_QUERY_HERE
 def execute_command(image)->str:

@@ -823,7 +823,7 @@ class GPT3Model(BaseModel):
         if self.n_votes > 1:
             response_ = []
             for i in range(len(prompts)):
-                if self.model == 'chatgpt':
+                if self.model in openai_models_avaiable:
                     resp_i = [r.message.content for r in
                               response.choices[i * self.n_votes:(i + 1) * self.n_votes]]
                 else:
@@ -831,7 +831,7 @@ class GPT3Model(BaseModel):
                 response_.append(self.most_frequent(resp_i).lstrip())
             response = response_
         else:
-            if self.model == 'chatgpt':
+            if self.model in openai_models_avaiable:
                 response = [r.message.content.lstrip() for r in response.choices]
             else:
                 response = [r['text'].lstrip() for r in response['choices']]
@@ -854,7 +854,7 @@ class GPT3Model(BaseModel):
         if self.n_votes > 1:
             response_ = []
             for i in range(len(prompts)):
-                if self.model == 'chatgpt':
+                if self.model in openai_models_avaiable:
                     resp_i = [r.message.content for r in
                               response.choices[i * self.n_votes:(i + 1) * self.n_votes]]
                 else:
@@ -862,7 +862,7 @@ class GPT3Model(BaseModel):
                 response_.append(self.most_frequent(resp_i))
             response = response_
         else:
-            if self.model == 'chatgpt':
+            if self.model in openai_models_avaiable:
                 response = [r.message.content for r in response.choices]
             else:
                 response = [self.process_answer(r["text"]) for r in response['choices']]
@@ -876,19 +876,19 @@ class GPT3Model(BaseModel):
     def get_general(self, prompts) -> list[str]:
         response = self.query_gpt3(prompts, model=self.model, max_tokens=256, top_p=1, frequency_penalty=0,
                                    presence_penalty=0)
-        if self.model == 'chatgpt':
+        if self.model in openai_models_avaiable:
             response = [r.message.content for r in response.choices]
         else:
             response = [r["text"] for r in response['choices']]
         return response
 
-    def query_gpt3(self, prompt, model="text-davinci-003", max_tokens=16, logprobs=None, stream=False,
+    def query_gpt3(self, prompt, model="gpt-3.5-turbo", max_tokens=16, logprobs=None, stream=False,
                    stop=None, top_p=1, frequency_penalty=0, presence_penalty=0):
-        if model == "chatgpt":
+        if model in openai_models_avaiable:
             messages = [{"role": "user", "content": p} for p in prompt]
             # response = openai.ChatCompletion.create(
             response = client.chat.completions.create(
-                model="gpt-3.5-turbo",
+                model=model,
                 messages=messages,
                 max_tokens=max_tokens,
                 temperature=self.temperature,
@@ -971,6 +971,7 @@ def codex_helper(extended_prompt):
     if config.codex.model in openai_models_avaiable:#("gpt-4", "gpt-3.5-turbo"):
         if not isinstance(extended_prompt, list):
             extended_prompt = [extended_prompt]
+        import pdb; pdb.set_trace()
         responses = [
             # openai.ChatCompletion.create(
             client.chat.completions.create(

@@ -43,7 +43,7 @@ class OKVQADataset(Dataset):
                  image_transforms=None, question_transforms=None, tokenize=None,
                  # answer_selection=most_common_from_dict,
                  answer_selection=all_answers_from_dict,
-                 verbose=False, testing=False, max_samples=None):
+                 verbose=False, testing=False, max_samples=None, *args, **kwargs):
         """
         split train, val, test
         balanced True, False
@@ -201,14 +201,17 @@ class OKVQADataset(Dataset):
 
         # Return
         if self.testing:
-            return {"sample_id": question_id, "img": img, "question": question, 'pil_img': pil_img, 'index': index,
+            out_dict = {"sample_id": question_id, "img": img, "question": question, 'pil_img': pil_img, 'index': index,
                     'possible_answers': [], 'info_to_prompt': question, 'question_type': -1}
 
         else:
-            return {"sample_id": question_id, 'answer': selected_answers, "img": img, "question": question,
+            out_dict = {"sample_id": question_id, 'answer': selected_answers, "image": img, "query": question,
                     'pil_img': pil_img, 'index': index, 'possible_answers': [], 'info_to_prompt': question,
-                    "question_type": -1}
-
+                    "query_type": -1, "image_path":image_path}
+        if 'extra_context' not in out_dict:
+            out_dict['extra_context'] = ''
+        return out_dict
+        
     def post_process(self, prediction, stem=True):
         """
         Code from https://github.com/GT-Vision-Lab/VQA/blob/master/PythonEvaluationTools/vqaEvaluation/vqaEval.py,
