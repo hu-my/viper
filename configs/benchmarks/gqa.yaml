@@ -1,14 +1,16 @@
 dataset:
     data_path: '/data/huminyang/dataset/ViperGPT-dataset/vGPT_data/gqa' #vGPT_data/gqa
-    # dataset_name: GQA
+    dataset_name: GQA
     split: testdev
     testing: False
-    max_samples: 100 # original is 1000, we use 100 for simple testing
+    max_samples: 20 # original is 1000, we use 100 for simple testing
     batch_size: 20
     start_sample: 0
 
 prompt : ./prompts/benchmarks/gqa.prompt
 results_dir : ./results/gqa/
+codex:
+    function_head: 'def execute_command(image) -> str:'
 
 load_models:
     maskrcnn: True
@@ -16,8 +18,8 @@ load_models:
     glip: True
     owlvit: False
     tcl: False
-    gpt3_list: False
     gpt3_qa: True
+    gpt3_general: True
     gpt3_guess: False
     depth: False
     blip: True

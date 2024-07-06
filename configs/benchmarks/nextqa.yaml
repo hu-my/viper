@@ -1,5 +1,5 @@
 dataset:
-  data_path: /path/to/datasets/NExTQA/ #vGPT_data/next_qa
+  data_path: '/data/huminyang/dataset/ViperGPT-dataset/vGPT_data/next_qa' #vGPT_data/next_qa
   dataset_name: NExTQA
   version: multiplechoice
   fps: 1
@@ -10,6 +10,7 @@ dataset:
 
 codex:
   prompt: ./prompts/benchmarks/nextqa.prompt
+  function_head: 'def execute_command(video) -> str:'
 select_answer_prompt: ./prompts/gpt3/video_question.txt
 fixed_code_file: ./prompts/fixed_code/blip2_video.prompt
 

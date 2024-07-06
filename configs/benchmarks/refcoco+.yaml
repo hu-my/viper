@@ -1,17 +1,18 @@
 dataset:
-  data_path: '/data/huminyang/dataset/ViperGPT-dataset/vGPT_data/refcoco' #vGPT_data/coco
+  data_path: '/data/huminyang/dataset/ViperGPT-dataset/vGPT_data/refcoco+' #vGPT_data/coco
   dataset_name: RefCOCO
   split_by: unc  # [google, unc]
   split: testA
-  version: refcoco
+  version: refcoco+
   batch_size: 20
+  max_samples: 100
 
 codex:
   prompt: ./prompts/benchmarks/joint.prompt
   function_head: 'def execute_command(image) -> ImagePatch:'
 fixed_code_file: ./prompts/fixed_code/glip.prompt
 
-results_dir: ./results/refcoco/
+results_dir: ./results/refcoco+/
 
 load_models:
   gpt3_general: False
